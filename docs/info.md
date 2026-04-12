@@ -1,20 +1,29 @@
-<!---
-
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
-
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
 
 ## How it works
 
-Explain how your project works
+Implements a basic GNSS receiver including functionality to synchronise in time and frequency with different GNSS constellations.
+
+Works in conjunction with a GPS front end capable of providing single bit (and potentially multi bit I/Q streams along with an ADC sampling clock.
+
+Design is targeting MAX2769 and MAX2771 from Analog Devices, though testing may not occur with hw due to time limitations.
+
+A table of features and maturity is below:
+
+| Requirement ID |  State | Description |
+| :——-: | :——-: | :——- |
+| 1.0 | ❌ | Support search for acquisition |
+| 1.1 | ❌ | Generate Gold Codes for GPS L1 | 
+| 1.2 | ❌ | Generate NCO for frequency correction |
+| 1.3 | ❌ | Generate timing signal for frame |
+ 
+
 
 ## How to test
 
-Explain how to use your project
+Will need a custom load on the RP2050 on the TT development kit to manage software interactions.
+
+Needs a source of GNSS data, either recorded or simulated, look in /data for example data
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+Custom MAX2769 or MAX2771 board required, SPI interface to RP2050 for configuration and control.
