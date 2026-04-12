@@ -10,7 +10,7 @@ Design is targeting MAX2769 and MAX2771 from Analog Devices, though testing may 
 A table of features and maturity is below:
 
 | Requirement ID |  State | Description |
-| :——-: | :——-: | :——- |
+| :---: | :---: | :--- |
 | 1.0 | ❌ | Support search for acquisition |
 | 1.1 | ❌ | Generate Gold Codes for GPS L1 | 
 | 1.2 | ❌ | Generate NCO for frequency correction |
