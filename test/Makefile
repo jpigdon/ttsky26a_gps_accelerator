@@ -13,6 +13,7 @@ ifneq ($(GATES),yes)
 # RTL simulation:
 SIM_BUILD				= sim_build/rtl
 VHDL_SOURCES = $(SRC_DIR)/gold_code_gen.vhdl
+VHDL_SOURCES += $(SRC_DIR)/bidir_complex_nco_1b.vhdl
 
 else
 
@@ -35,8 +36,10 @@ endif
 # Allow sharing configuration between design and testbench via `include`:
 
 # Include the testbench sources:
-TOPLEVEL = gold_code_gen
-MODULE = test_gold_code
+#TOPLEVEL = gold_code_gen
+#MODULE = test_gold_code
+TOPLEVEL = bidir_complex_nco_1b
+MODULE = test_nco
 # List test modules to run, separated by commas and without the .py suffix:
 #COCOTB_TEST_MODULES = test
 
