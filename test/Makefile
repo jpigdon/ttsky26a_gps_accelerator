@@ -12,8 +12,11 @@ ifneq ($(GATES),yes)
 
 # RTL simulation:
 SIM_BUILD				= sim_build/rtl
-VHDL_SOURCES = $(SRC_DIR)/gold_code_gen.vhdl
+VHDL_SOURCES = $(SRC_DIR)/tt_um_jpigdon_gps_accelerator_top.vhdl
+VHDL_SOURCES += $(SRC_DIR)/gold_code_gen.vhdl
 VHDL_SOURCES += $(SRC_DIR)/bidir_complex_nco_1b.vhdl
+VHDL_SOURCES += $(SRC_DIR)/biphase_accu_and_dump.vhdl
+VHDL_SOURCES += $(SRC_DIR)/single_complex_correlator_channel.vhdl
 
 else
 
@@ -38,8 +41,9 @@ endif
 # Include the testbench sources:
 #TOPLEVEL = gold_code_gen
 #MODULE = test_gold_code
-TOPLEVEL = bidir_complex_nco_1b
-MODULE = test_nco
+#TOPLEVEL = bidir_complex_nco_1b
+TOPLEVEL = tt_um_jpigdon_gps_accelerator_top
+MODULE = test_um_system
 # List test modules to run, separated by commas and without the .py suffix:
 #COCOTB_TEST_MODULES = test
 

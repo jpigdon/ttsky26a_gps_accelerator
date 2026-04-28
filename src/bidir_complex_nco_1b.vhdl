@@ -21,7 +21,7 @@ entity bidir_complex_nco_1b is
         clk     : in  std_logic;
         reset   : in  std_logic
     );
-end bidir_complex_nco_1b;
+end bidir_complex_nco_1b; 
 
 architecture Behavioral of bidir_complex_nco_1b is
     signal phase_accu : integer range ACCU_MIN_INT to ACCU_MAX_INT;
