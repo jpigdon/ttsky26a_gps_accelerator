@@ -22,6 +22,8 @@ VHDL_SOURCES += $(SRC_DIR)/track_complex_correlator_channel.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acquisition_mgmt_sm.vhdl
 VHDL_SOURCES += $(SRC_DIR)/master_timing.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acq_and_track_subsystem.vhdl
+TOPLEVEL = acq_and_track_subsystem
+MODULE = test_acq_and_track_subsystem
 
 else
 
@@ -39,7 +41,10 @@ VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_f
 # this gets copied in by the GDS action workflow
 VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
 
-COMPILE_ARGS 		+= -I$(SRC_DIR)
+#COMPILE_ARGS 		+= -I$(SRC_DIR)
+TOPLEVEL = tt_um_jpigdon_gps_accelerator_top
+MODULE = test_um_system
+COCOTB_TEST_MODULES = test_um_system
 endif
 
 # Allow sharing configuration between design and testbench via `include`:
@@ -52,8 +57,6 @@ endif
 #TOPLEVEL = tt_um_jpigdon_gps_accelerator_top
 #MODULE = test_um_system
 
-TOPLEVEL = acq_and_track_subsystem
-MODULE = test_acq_and_track_subsystem
 # List test modules to run, separated by commas and without the .py suffix:
 #COCOTB_TEST_MODULES = test
 
