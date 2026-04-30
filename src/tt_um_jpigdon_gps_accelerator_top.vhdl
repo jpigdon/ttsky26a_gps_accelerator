@@ -19,6 +19,7 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
     component single_complex_correlator_channel is
     generic(
         ACCU_WIDTH : integer := 16;
+        ACCU_OUTPUT_WIDTH : integer := 8;
         GPS_GOLD_TAPS_WIDTH : integer := 10;
         PHASE_ACCU_WIDTH : integer := 12;
         PHASE_INC_WIDTH : integer := 8
@@ -40,8 +41,8 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
         accu_sync : in std_logic;
         accu_ena     : in  std_logic; --general channel enable
 
-        i_accu_val : out std_logic_vector(ACCU_WIDTH-1 downto 0);
-        q_accu_val : out std_logic_vector(ACCU_WIDTH-1 downto 0);
+        i_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
+        q_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
 
 
         reset   : in  std_logic;
@@ -50,8 +51,8 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
     );
     end component;
     signal reset_pos_logic : std_logic;
-    signal accu_val_i_part : std_logic_vector(15 downto 0);
-    signal accu_val_q_part : std_logic_vector(15 downto 0);
+    signal accu_val_i_part : std_logic_vector(7 downto 0);
+    signal accu_val_q_part : std_logic_vector(7 downto 0);
     signal output_reg : std_logic_vector(31 downto 0);
     signal input_reg : std_logic_vector(31 downto 0);
 
@@ -76,7 +77,9 @@ begin
 
     input_i_chan <= ui_in(0); -- these are real pins, connect them here
     input_q_chan <= ui_in(0);
-
+    uio_out(7 downto 1) <= (others=> '0');
+    uo_out <= (others => '0');
+    uio_oe <= (others => '0');
 
     --shift register based configuration loading
     --this is just fake to stop everything being synthesisted out
@@ -103,7 +106,7 @@ begin
                 output_reg <= (others => '0');
             else
                 if(uio_in(1) = '1') then
-                    output_reg <= accu_val_i_part & accu_val_q_part;
+                    output_reg <= x"0000" & accu_val_i_part & accu_val_q_part;
                 else
                     output_reg <= output_reg(30 downto 0) & '0';
                 end if;
