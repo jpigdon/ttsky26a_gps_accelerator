@@ -29,6 +29,7 @@ else
 
 # Gate level simulation:
 SIM = icarus
+TOPLEVEL_LANG = verilog
 SIM_BUILD				= sim_build/gl
 COMPILE_ARGS    += -DGL_TEST
 COMPILE_ARGS    += -DFUNCTIONAL
