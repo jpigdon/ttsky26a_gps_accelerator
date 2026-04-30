@@ -5,13 +5,14 @@ use IEEE.NUMERIC_STD.ALL;
 entity biphase_accu_and_dump is
     generic(
         ACCU_WIDTH : integer := 16;
+        ACCU_OUTPUT_WIDTH : integer := 8;
         ACCU_MIN_INT : integer := -1*(2**(ACCU_WIDTH-1));
         ACCU_MAX_INT : integer := (2**(ACCU_WIDTH-1)-1)
     );
     port (
         inc_input : in std_logic; --high indicates increment request
         dec_input : in std_logic; --high indicates decrement request
-        accu_reg_data : out  std_logic_vector(ACCU_WIDTH-1 downto 0); --signed output from accumulator
+        accu_reg_data : out  std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0); --signed output from accumulator
         accu_sync : in  std_logic; -- clear count and register the current count val
         ena     : in  std_logic;
         clk     : in  std_logic;
@@ -24,7 +25,7 @@ architecture Behavioral of biphase_accu_and_dump is
     signal accu_val_reg : std_logic_vector(ACCU_WIDTH-1 downto 0);
 begin
     
-    accu_reg_data <= accu_val_reg;
+    accu_reg_data <= accu_val_reg(ACCU_WIDTH-1 downto ACCU_WIDTH-ACCU_OUTPUT_WIDTH);
 
     process(clk) is
         variable new_accu_val : integer range ACCU_MIN_INT to ACCU_MAX_INT;

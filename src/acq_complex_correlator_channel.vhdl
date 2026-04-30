@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity single_complex_correlator_channel is
+entity acq_complex_correlator_channel is
     generic(
         ACCU_WIDTH : integer := 16;
         ACCU_OUTPUT_WIDTH : integer := 8;
@@ -13,10 +13,17 @@ entity single_complex_correlator_channel is
         i_chan : in std_logic;
         q_chan : in std_logic;
 
-        gold_taps_slv : in std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
-        gold_load : in std_logic;
-        gold_sync : in std_logic;
-        gold_ena : in std_logic;
+        gold_a_taps_slv : in std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
+        gold_a_load : in std_logic;
+        gold_a_sync : in std_logic;
+        gold_a_ena : in std_logic;
+
+        gold_b_taps_slv : in std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
+        gold_b_load : in std_logic;
+        gold_b_sync : in std_logic;
+        gold_b_ena : in std_logic;
+
+        gold_sel : in std_logic;
 
         ph_inc_slv : in  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
         ph_inc_load : in std_logic;
@@ -29,14 +36,13 @@ entity single_complex_correlator_channel is
         i_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
         q_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
 
-
         reset   : in  std_logic;
         
         clk     : in  std_logic
     );
-end single_complex_correlator_channel;
+end acq_complex_correlator_channel;
 
-architecture Behavioral of single_complex_correlator_channel is
+architecture Behavioral of acq_complex_correlator_channel is
     component gold_code_gen is
     generic(
         WIDTH : integer := 10
@@ -84,6 +90,8 @@ architecture Behavioral of single_complex_correlator_channel is
     end component; 
 
     signal reference_gold_code : std_logic;
+    signal reference_gold_code_a : std_logic;
+    signal reference_gold_code_b : std_logic;
     signal i_nco_output : std_logic;
     signal q_nco_output : std_logic;
     signal i_reference_mixed_nco : std_logic;
@@ -94,6 +102,9 @@ architecture Behavioral of single_complex_correlator_channel is
     signal q_corl_ophase : std_logic;
 begin
 
+
+    --two gold generators for speed
+    reference_gold_code <= reference_gold_code_a when gold_sel = '0' else reference_gold_code_b;
     --mixing stuff here, declare with when rather than xor to allow a more easy interpetation
     --for i and q channels, 1 = 1 and 0 = -1
     i_reference_mixed_nco <= '1' when (reference_gold_code = '1' and i_nco_output = '1') or (reference_gold_code = '0' and i_nco_output = '0') else '0';
@@ -106,17 +117,30 @@ begin
     q_corl_ophase <= '1' when (q_chan = '0' and q_reference_mixed_nco = '0') else '0';
 
 
-    gold_gen : gold_code_gen  
+    gold_gen_a : gold_code_gen  
         generic map (
             WIDTH => GPS_GOLD_TAPS_WIDTH
         )
         port map(
-            sv_taps => gold_taps_slv,
-            sv_load => gold_load,
-            gold_code_out  => reference_gold_code,
-            ena    => gold_ena,
+            sv_taps => gold_a_taps_slv,
+            sv_load => gold_a_load,
+            gold_code_out  => reference_gold_code_a,
+            ena    => gold_a_ena,
             clk    => clk,
-            sync   => gold_sync
+            sync   => gold_a_sync
+        );
+    
+    gold_gen_b : gold_code_gen  
+        generic map (
+            WIDTH => GPS_GOLD_TAPS_WIDTH
+        )
+        port map(
+            sv_taps => gold_b_taps_slv,
+            sv_load => gold_b_load,
+            gold_code_out  => reference_gold_code_b,
+            ena    => gold_b_ena,
+            clk    => clk,
+            sync   => gold_b_sync
         );
 
     complex_nco : bidir_complex_nco_1b

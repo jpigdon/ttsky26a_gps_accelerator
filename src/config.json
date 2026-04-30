@@ -38,7 +38,9 @@
     "dir::single_complex_correlator_channel.vhdl",
     "dir::gold_code_gen.vhdl",
     "dir::bidir_complex_nco_1b.vhdl",
-    "dir::biphase_accu_and_dump.vhdl"
+    "dir::biphase_accu_and_dump.vhdl",
+    "dir::track_complex_correlator_channel.vhdl",
+    "dir::acq_complex_correlator_channel.vhdl"
   ],
 
   "//": "If you need a custom clock configuration, read the following documentation first:",

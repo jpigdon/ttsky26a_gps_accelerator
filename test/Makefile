@@ -17,6 +17,8 @@ VHDL_SOURCES += $(SRC_DIR)/gold_code_gen.vhdl
 VHDL_SOURCES += $(SRC_DIR)/bidir_complex_nco_1b.vhdl
 VHDL_SOURCES += $(SRC_DIR)/biphase_accu_and_dump.vhdl
 VHDL_SOURCES += $(SRC_DIR)/single_complex_correlator_channel.vhdl
+VHDL_SOURCES += $(SRC_DIR)/acq_complex_correlator_channel.vhdl
+VHDL_SOURCES += $(SRC_DIR)/track_complex_correlator_channel.vhdl
 
 else
 
