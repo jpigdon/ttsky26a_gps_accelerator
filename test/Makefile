@@ -19,10 +19,14 @@ VHDL_SOURCES += $(SRC_DIR)/biphase_accu_and_dump.vhdl
 VHDL_SOURCES += $(SRC_DIR)/single_complex_correlator_channel.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acq_complex_correlator_channel.vhdl
 VHDL_SOURCES += $(SRC_DIR)/track_complex_correlator_channel.vhdl
+VHDL_SOURCES += $(SRC_DIR)/acquisition_mgmt_sm.vhdl
+VHDL_SOURCES += $(SRC_DIR)/master_timing.vhdl
+VHDL_SOURCES += $(SRC_DIR)/acq_and_track_subsystem.vhdl
 
 else
 
 # Gate level simulation:
+SIM = iverilog
 SIM_BUILD				= sim_build/gl
 COMPILE_ARGS    += -DGL_TEST
 COMPILE_ARGS    += -DFUNCTIONAL
@@ -44,8 +48,12 @@ endif
 #TOPLEVEL = gold_code_gen
 #MODULE = test_gold_code
 #TOPLEVEL = bidir_complex_nco_1b
-TOPLEVEL = tt_um_jpigdon_gps_accelerator_top
-MODULE = test_um_system
+
+#TOPLEVEL = tt_um_jpigdon_gps_accelerator_top
+#MODULE = test_um_system
+
+TOPLEVEL = acq_and_track_subsystem
+MODULE = test_acq_and_track_subsystem
 # List test modules to run, separated by commas and without the .py suffix:
 #COCOTB_TEST_MODULES = test
 

@@ -40,7 +40,11 @@
     "dir::bidir_complex_nco_1b.vhdl",
     "dir::biphase_accu_and_dump.vhdl",
     "dir::track_complex_correlator_channel.vhdl",
-    "dir::acq_complex_correlator_channel.vhdl"
+    "dir::acq_complex_correlator_channel.vhdl",
+    "dir::acquisition_mgmt_sm.vhdl",
+    "dir::master_timing.vhdl",
+    "dir::acq_and_track_subsystem.vhdl"
+    
   ],
 
   "//": "If you need a custom clock configuration, read the following documentation first:",
