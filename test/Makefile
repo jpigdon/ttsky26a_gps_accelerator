@@ -3,8 +3,6 @@
 
 # defaults
 SIM ?= nvc
-SIM_ARGS += --wave=nvcsim.fst
-TOPLEVEL_LANG ?= vhdl
 SRC_DIR = $(PWD)/../src
 
 
@@ -12,6 +10,8 @@ ifneq ($(GATES),yes)
 
 # RTL simulation:
 SIM_BUILD				= sim_build/rtl
+SIM_ARGS += --wave=nvcsim.fst
+TOPLEVEL_LANG ?= vhdl
 VHDL_SOURCES = $(SRC_DIR)/tt_um_jpigdon_gps_accelerator_top.vhdl
 VHDL_SOURCES += $(SRC_DIR)/gold_code_gen.vhdl
 VHDL_SOURCES += $(SRC_DIR)/bidir_complex_nco_1b.vhdl
