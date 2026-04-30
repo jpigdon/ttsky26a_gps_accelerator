@@ -10,10 +10,14 @@
   "//": "If you get stuck with this config, please open an issue or get in touch via the discord.",
 
   "//": "Here are some of the variables you may want to change:",
-
+ 
   "//": "PL_TARGET_DENSITY_PCT - You can increase this if Global Placement fails with error GPL-0302.",
   "//": "Users have reported that values up to 80 worked well for them.",
-  "PL_TARGET_DENSITY_PCT": 60,
+  "meta": {
+    "flow": "VHDLClassic"
+  },
+  
+  "PL_TARGET_DENSITY_PCT": 70,
 
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
@@ -26,6 +30,16 @@
   "//": "RUN_LINTER, LINTER_INCLUDE_PDK_MODELS - Disabling the linter is not recommended!",
   "RUN_LINTER": 1,
   "LINTER_INCLUDE_PDK_MODELS": 1,
+  "GHDL_ARGUMENTS": [
+    "--std=08"
+  ],
+  "VHDL_FILES": [
+    "dir::tt_um_jpigdon_gps_accelerator_top.vhdl",
+    "dir::single_complex_correlator_channel.vhdl",
+    "dir::gold_code_gen.vhdl",
+    "dir::bidir_complex_nco_1b.vhdl",
+    "dir::biphase_accu_and_dump.vhdl"
+  ],
 
   "//": "If you need a custom clock configuration, read the following documentation first:",
   "//": "https://tinytapeout.com/faq/#how-can-i-map-an-additional-external-clock-to-one-of-the-gpios",

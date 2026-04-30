@@ -7,7 +7,8 @@
     "context": ".."
   },
   "runArgs": [
-    "--memory=10GB"
+    "--memory=10GB",
+    "--userns=keep-id"
   ],
   "customizations": {
     "vscode": {
@@ -25,6 +26,6 @@
       "dockerDashComposeVersion": "none"
     }
   },
-  "postCreateCommand": "echo 'source /ttsetup/venv/bin/activate' >> ~/.bashrc",
+  "postCreateCommand": "sudo update-alternatives --set iptables /usr/sbin/iptables-nft && sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-nft && echo 'source /ttsetup/venv/bin/activate' >> ~/.bashrc",
   "postStartCommand": "/ttsetup/copy_tt_support_tools.sh"
 }
