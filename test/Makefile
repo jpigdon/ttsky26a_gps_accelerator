@@ -26,7 +26,7 @@ VHDL_SOURCES += $(SRC_DIR)/acq_and_track_subsystem.vhdl
 else
 
 # Gate level simulation:
-SIM = iverilog
+SIM = icarus
 SIM_BUILD				= sim_build/gl
 COMPILE_ARGS    += -DGL_TEST
 COMPILE_ARGS    += -DFUNCTIONAL
