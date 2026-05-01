@@ -87,9 +87,8 @@ architecture Behavioral of acquisition_mgmt_sm is
 
     signal time_search_step : integer range 0 to (2**GPS_GOLD_TAPS_WIDTH)-1;
     signal freq_search_step : integer range 0 to (2**PHASE_COUNT_WIDTH)-1;
-    signal freq_search_end : integer range 0 to (2**PHASE_COUNT_WIDTH)-1;
+    signal freq_search_max : integer range 0 to (2**PHASE_COUNT_WIDTH)-1;
 
-    signal sv_taps_slv : std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
     signal gold_a_load : std_logic;
     signal gold_a_sync : std_logic;
     signal gold_a_ena : std_logic;
@@ -108,11 +107,17 @@ architecture Behavioral of acquisition_mgmt_sm is
 
     signal accu_sync :  std_logic;
     signal accu_ena  :  std_logic; --general channel enable
+
+    signal timing_int_part : std_logic_vector(MASTER_COUNT_WIDTH_INT-1 downto 0);
+    signal timing_frac_part : std_logic_vector(MASTER_COUNT_WIDTH_FRAC-1 downto 0);
+
 begin
 
     acq_busy <= '0' when acq_state = WAITING else '1';
     curr_time_offset_test <= std_logic_vector(to_unsigned(time_search_step, GPS_GOLD_TAPS_WIDTH));
     curr_ph_inc_test <= std_logic_vector(to_unsigned(freq_search_step, PHASE_INC_WIDTH));
+    timing_int_part <= master_timing_slv(MASTER_COUNT_WIDTH_INT+MASTER_COUNT_WIDTH_FRAC-1 downto MASTER_COUNT_WIDTH_FRAC);
+    timing_frac_part <= master_timing_slv(MASTER_COUNT_WIDTH_FRAC-1 downto 0);
 
     acq_inst : acq_complex_correlator_channel
         generic map(
@@ -125,11 +130,11 @@ begin
         port map(
             i_chan => i_chan,
             q_chan => q_chan,
-            gold_a_taps_slv => sv_taps_slv,
+            gold_a_taps_slv => sv_test_taps,
             gold_a_load => gold_a_load,
             gold_a_sync => gold_a_sync,
             gold_a_ena => gold_a_ena,
-            gold_b_taps_slv => sv_taps_slv,
+            gold_b_taps_slv => sv_test_taps,
             gold_b_load => gold_b_load,
             gold_b_sync => gold_b_sync,
             gold_b_ena => gold_b_ena,
@@ -146,43 +151,72 @@ begin
             clk     => clk
         );
 
-    process(clk) is
+    process(acq_state) is
     begin
-        if(rising_edge(clk)) then
-            if reset = '1' then
-                acq_state <= WAITING;
-                time_search_step <= 0;
-                freq_search_step <= 0;
-                freq_search_end <= 0;
-                sv_taps_slv <= (others => '0');
-                ph_inc_current <= (others => '0');
-                ph_inc_reg <= (others => '0');
+        case acq_state is
+            when PREPARING=>
+                gold_a_load <= '1';
+                gold_b_load <= '1';
+            when others=>
+                gold_a_load <= '0';
+                gold_b_load <= '0';
+        end case;
+    end process;
 
-            else
-                case acq_state is
-                    when WAITING =>
-                        if( acq_begin = '1') then
-                            acq_state <= PREPARING;
+    process(clk, reset) is
+    begin
+        if reset = '1' then
+            acq_state <= WAITING;
+            time_search_step <= 0;
+            freq_search_step <= 0;
+            freq_search_max <= 0;
+            ph_inc_current <= (others => '0');
+            ph_inc_reg <= (others => '0');
+            gold_sel <= '0';
+        elsif(rising_edge(clk)) then
+            case acq_state is
+                when WAITING =>
+                    if( acq_begin = '1') then
+                        acq_state <= PREPARING;
+                        time_search_step <= 0;
+                        freq_search_step <= 0;
+                        freq_search_max <= to_integer(unsigned(phase_inc_count));
+                        ph_inc_current <= phase_inc_start;
+                        ph_inc_reg <= phase_inc_step;
+                        gold_sel <= '0';
+                    end if;
+                when PREPARING=>
+                    acq_state <= TRIGGERED_WAIT_SOF;
+                when TRIGGERED_WAIT_SOF=>
+                    if(timing_period_strobe = '1') then
+                        acq_state <= ACQUIRING;
+                    end if;
+                when ACQUIRING =>
+                    if(timing_period_strobe = '1') then
+                        if(gold_sel = '0') then
+                            gold_sel <= '1';
+                        else
+                            gold_sel <= '1';
+                        end if;
+
+                        if(time_search_step = (2**GPS_GOLD_TAPS_WIDTH)-2) then
                             time_search_step <= 0;
-                            freq_search_step <= 0;
-                            freq_search_end <= to_integer(unsigned(phase_inc_count));
-                            ph_inc_current <= phase_inc_start;
-                            ph_inc_reg <= phase_inc_step;
-                            sv_taps_slv <= sv_test_taps;
+                            if(freq_search_step = freq_search_max-1) then
+                                --end of freq_search
+                                freq_search_step <= 0;
+                                acq_state <= WAITING;
+                            else
+                                freq_search_step <= freq_search_step + 1;
+                                ph_inc_current <= std_logic_vector(signed(ph_inc_current) + signed(ph_inc_reg));
+                            end if;
+                        else
+                            time_search_step <= time_search_step + 1;
                         end if;
-                    when PREPARING=>
-                        acq_state <= TRIGGERED_WAIT_SOF;
-                    when TRIGGERED_WAIT_SOF=>
-                        if(timing_period_strobe = '1') then
-                            acq_state <= ACQUIRING;
-                        end if;
-                    when ACQUIRING =>
+                    end if;
 
-
-                    when others=>
-                        acq_state <= WAITING;
-                end case;
-            end if;
+                when others=>
+                    acq_state <= WAITING;
+            end case;
         end if;
     end process;
 end Behavioral;

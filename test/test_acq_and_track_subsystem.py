@@ -2,7 +2,9 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, FallingEdge, ClockCycles
 import random, os
+import numpy as np
 
+import gen_synthetic_data
 import ca_code_gen
 
 ASSERT = True
@@ -22,10 +24,39 @@ async def test_acq_and_track_subsystem(dut):
 
     # test a range of values
 
+    test_data_unquantised = gen_synthetic_data.generate_synthetic_data()
+    i_chan_quantised = np.array(np.where(np.real(test_data_unquantised) >= 0.0, 1,-1),dtype="int8")
+    q_chan_quantised = np.array(np.where(np.imag(test_data_unquantised) >= 0.0, 1,-1),dtype="int8")
+
+    dut.sv_test_taps.value = ca_code_gen.taps_from_sv(1)
+    dut.i_chan.value = 0
+    dut.q_chan.value = 0
+
+    dut.acq_begin.value = 0
+
+    dut.phase_inc_start.value = -2
+    dut.phase_inc_step.value = 1
+    dut.phase_inc_count.value = 5
+    
     await reset(dut)
     await RisingEdge(dut.clk)
-        
-    for test_count in range(1023*8):
+    dut.acq_begin.value = 1
+    await RisingEdge(dut.clk)
+    dut.acq_begin.value = 0
+
+
+    for test_count in range(1023*4*1024):
         await RisingEdge(dut.clk)
+        if(i_chan_quantised[test_count] == 1):
+            dut.i_chan.value = 1
+        else:
+            dut.i_chan.value = 0
+
+        if(q_chan_quantised[test_count] == 1):
+            dut.q_chan.value = 1
+        else:
+            dut.q_chan.value = 0
+        
+        
         #if ASSERT:
         #    assert( dut.gold_code_out.value == prn_seq[chip_idx]) 

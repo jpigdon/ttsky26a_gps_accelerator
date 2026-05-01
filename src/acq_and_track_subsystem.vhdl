@@ -132,7 +132,7 @@ begin
 
             phase_inc_start => phase_inc_start,
             phase_inc_step => phase_inc_step,
-            phase_inc_count => phase_inc_step,
+            phase_inc_count => phase_inc_count,
             sv_test_taps => sv_test_taps,
             acq_busy => acq_busy,
             curr_time_offset_test => curr_time_offset_test,

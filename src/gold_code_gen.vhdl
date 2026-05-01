@@ -54,9 +54,7 @@ begin
         
     begin
 
-        if(rising_edge(clk)) then
-
-           
+        if(rising_edge(clk)) then           
             if(sv_load = '1') then
                 sv_taps_reg <= sv_taps;
             end if;
