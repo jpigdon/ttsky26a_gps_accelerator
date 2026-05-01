@@ -140,20 +140,20 @@ begin
     i_reference_mixed_nco_l <= '1' when (reference_gold_code_l = '1' and i_nco_output = '1') or (reference_gold_code_l = '0' and i_nco_output = '0') else '0';
     q_reference_mixed_nco_l <= '1' when (reference_gold_code_l = '1' and q_nco_output = '1') or (reference_gold_code_l = '0' and q_nco_output = '0') else '0';
 
-    i_corl_iphase_e <= '1' when (i_chan = '1' and i_reference_mixed_nco_e = '1') else '0';
-    i_corl_ophase_e <= '1' when (i_chan = '0' and i_reference_mixed_nco_e = '0') else '0';
-    q_corl_iphase_e <= '1' when (q_chan = '1' and q_reference_mixed_nco_e = '1') else '0';
-    q_corl_ophase_e <= '1' when (q_chan = '0' and q_reference_mixed_nco_e = '0') else '0';
+    i_corl_iphase_e <= '1' when (i_chan = '1' and i_reference_mixed_nco_e = '1') or (i_chan = '0' and i_reference_mixed_nco_e = '0') else '0';
+    i_corl_ophase_e <= '1' when (i_chan = '0' and i_reference_mixed_nco_e = '1') or (i_chan = '1' and i_reference_mixed_nco_e = '0') else '0';
+    q_corl_iphase_e <= '1' when (q_chan = '1' and q_reference_mixed_nco_e = '1') or (q_chan = '0' and q_reference_mixed_nco_e = '0') else '0';
+    q_corl_ophase_e <= '1' when (q_chan = '0' and q_reference_mixed_nco_e = '1') or (q_chan = '1' and q_reference_mixed_nco_e = '0') else '0';
 
-    i_corl_iphase_m <= '1' when (i_chan = '1' and i_reference_mixed_nco_m = '1') else '0';
-    i_corl_ophase_m <= '1' when (i_chan = '0' and i_reference_mixed_nco_m = '0') else '0';
-    q_corl_iphase_m <= '1' when (q_chan = '1' and q_reference_mixed_nco_m = '1') else '0';
-    q_corl_ophase_m <= '1' when (q_chan = '0' and q_reference_mixed_nco_m = '0') else '0';
+    i_corl_iphase_m <= '1' when (i_chan = '1' and i_reference_mixed_nco_m = '1') or (i_chan = '0' and i_reference_mixed_nco_m = '0') else '0';
+    i_corl_ophase_m <= '1' when (i_chan = '0' and i_reference_mixed_nco_m = '1') or (i_chan = '1' and i_reference_mixed_nco_m = '0') else '0';
+    q_corl_iphase_m <= '1' when (q_chan = '1' and q_reference_mixed_nco_m = '1') or (q_chan = '0' and q_reference_mixed_nco_m = '0') else '0';
+    q_corl_ophase_m <= '1' when (q_chan = '0' and q_reference_mixed_nco_m = '1') or (q_chan = '1' and q_reference_mixed_nco_m = '0') else '0';
 
-    i_corl_iphase_l <= '1' when (i_chan = '1' and i_reference_mixed_nco_l = '1') else '0';
-    i_corl_ophase_l <= '1' when (i_chan = '0' and i_reference_mixed_nco_l = '0') else '0';
-    q_corl_iphase_l <= '1' when (q_chan = '1' and q_reference_mixed_nco_l = '1') else '0';
-    q_corl_ophase_l <= '1' when (q_chan = '0' and q_reference_mixed_nco_l = '0') else '0';
+    i_corl_iphase_l <= '1' when (i_chan = '1' and i_reference_mixed_nco_l = '1') or (i_chan = '0' and i_reference_mixed_nco_l = '0') else '0';
+    i_corl_ophase_l <= '1' when (i_chan = '0' and i_reference_mixed_nco_l = '1') or (i_chan = '1' and i_reference_mixed_nco_l = '0') else '0';
+    q_corl_iphase_l <= '1' when (q_chan = '1' and q_reference_mixed_nco_l = '1') or (q_chan = '0' and q_reference_mixed_nco_l = '0') else '0';
+    q_corl_ophase_l <= '1' when (q_chan = '0' and q_reference_mixed_nco_l = '1') or (q_chan = '1' and q_reference_mixed_nco_l = '0') else '0';
 
 
     gold_gen : gold_code_gen  

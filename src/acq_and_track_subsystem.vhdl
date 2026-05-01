@@ -4,7 +4,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity acq_and_track_subsystem is
     generic(
-        ACCU_WIDTH : integer := 16;
+        OVERSAMPLE_RATIO : integer := 4;
+        ACCU_WIDTH : integer := 14;
         ACCU_OUTPUT_WIDTH : integer := 8;
         MASTER_COUNT_WIDTH_INT : integer := 10;
         MASTER_COUNT_WIDTH_FRAC : integer := 2;
@@ -39,6 +40,7 @@ end acq_and_track_subsystem;
 architecture Behavioral of acq_and_track_subsystem is
     component acquisition_mgmt_sm is
     generic(
+        OVERSAMPLE_RATIO : integer := 4;
         ACCU_WIDTH : integer := 16;
         ACCU_OUTPUT_WIDTH : integer := 8;
         MASTER_COUNT_WIDTH_INT : integer := 10;
@@ -98,7 +100,7 @@ begin
 
     master_clock : master_timing
         generic map (
-            OSAMP_RATIO => 4,
+            OSAMP_RATIO => OVERSAMPLE_RATIO,
             MASTER_COUNT_WIDTH_INT => MASTER_COUNT_WIDTH_INT,
             MASTER_COUNT_WIDTH_FRAC => MASTER_COUNT_WIDTH_FRAC,
             MAX_COUNT_INT => 1023
@@ -114,6 +116,7 @@ begin
     
     acq_channel :  acquisition_mgmt_sm
         generic map(
+            OVERSAMPLE_RATIO => OVERSAMPLE_RATIO,
             ACCU_WIDTH => ACCU_WIDTH,
             ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH,
             MASTER_COUNT_WIDTH_INT => MASTER_COUNT_WIDTH_INT,

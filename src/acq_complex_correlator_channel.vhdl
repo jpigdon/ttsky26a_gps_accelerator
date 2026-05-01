@@ -53,6 +53,7 @@ architecture Behavioral of acq_complex_correlator_channel is
         gold_code_out  : out std_logic;
         ena     : in  std_logic;
         clk     : in  std_logic;
+        reset   : in  std_logic;
         sync   : in  std_logic
     );
     end component;
@@ -110,11 +111,11 @@ begin
     i_reference_mixed_nco <= '1' when (reference_gold_code = '1' and i_nco_output = '1') or (reference_gold_code = '0' and i_nco_output = '0') else '0';
     q_reference_mixed_nco <= '1' when (reference_gold_code = '1' and q_nco_output = '1') or (reference_gold_code = '0' and q_nco_output = '0') else '0';
 
-    i_corl_iphase <= '1' when (i_chan = '1' and i_reference_mixed_nco = '1') else '0';
-    i_corl_ophase <= '1' when (i_chan = '0' and i_reference_mixed_nco = '0') else '0';
+    i_corl_iphase <= '1' when (i_chan = '1' and i_reference_mixed_nco = '1') or (i_chan = '0' and i_reference_mixed_nco = '0') else '0';
+    i_corl_ophase <= '1' when (i_chan = '0' and i_reference_mixed_nco = '1') or (i_chan = '1' and i_reference_mixed_nco = '0') else '0';
 
-    q_corl_iphase <= '1' when (q_chan = '1' and q_reference_mixed_nco = '1') else '0';
-    q_corl_ophase <= '1' when (q_chan = '0' and q_reference_mixed_nco = '0') else '0';
+    q_corl_iphase <= '1' when (q_chan = '1' and q_reference_mixed_nco = '1') or (q_chan = '0' and q_reference_mixed_nco = '0') else '0';
+    q_corl_ophase <= '1' when (q_chan = '0' and q_reference_mixed_nco = '1') or (q_chan = '1' and q_reference_mixed_nco = '0') else '0';
 
 
     gold_gen_a : gold_code_gen  
@@ -127,6 +128,7 @@ begin
             gold_code_out  => reference_gold_code_a,
             ena    => gold_a_ena,
             clk    => clk,
+            reset  => reset,
             sync   => gold_a_sync
         );
     
@@ -140,6 +142,7 @@ begin
             gold_code_out  => reference_gold_code_b,
             ena    => gold_b_ena,
             clk    => clk,
+            reset  => reset,
             sync   => gold_b_sync
         );
 

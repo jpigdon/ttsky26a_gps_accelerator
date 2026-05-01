@@ -55,6 +55,7 @@ begin
                 phase_inc_reg <= (others => '0');
             elsif(ph_load = '1') then
                 phase_inc_reg <= ph_inc_val;
+                phase_accu <= RESET_VAL;
             elsif(ena = '1') then
                 --increment the phase register and handle wrapping
                 

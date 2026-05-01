@@ -4,6 +4,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity acquisition_mgmt_sm is
     generic(
+        OVERSAMPLE_RATIO : integer := 4;
         ACCU_WIDTH : integer := 16;
         ACCU_OUTPUT_WIDTH : integer := 8;
         MASTER_COUNT_WIDTH_INT : integer := 10;
@@ -102,7 +103,6 @@ architecture Behavioral of acquisition_mgmt_sm is
     signal ph_inc_current :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
     signal ph_inc_reg :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
     signal ph_inc_load :  std_logic;
-    signal nco_reset :  std_logic;
     signal nco_ena :  std_logic;
 
     signal accu_sync :  std_logic;
@@ -141,7 +141,7 @@ begin
             gold_sel => gold_sel,
             ph_inc_slv => ph_inc_current,
             ph_inc_load => ph_inc_load,
-            nco_reset => nco_reset,
+            nco_reset => reset,
             nco_ena => nco_ena,
             accu_sync => accu_sync,
             accu_ena  => accu_ena,
@@ -163,6 +163,84 @@ begin
         end case;
     end process;
 
+    process(acq_state, timing_frac_part) is
+    begin
+        case acq_state is
+            when ACQUIRING=>
+                if(to_integer(unsigned(timing_frac_part)) = OVERSAMPLE_RATIO-1) then
+                    gold_a_ena <= '1';
+                    gold_b_ena <= '1';
+                else
+                    gold_a_ena <= '0';
+                    gold_b_ena <= '0';
+                end if;
+            when others=>
+                gold_a_ena <= '0';
+                gold_b_ena <= '0';
+        end case;
+    end process;
+
+    process(acq_state, timing_period_strobe, gold_sel, timing_int_part, timing_frac_part, time_search_step) is
+    begin
+        case acq_state is
+            when TRIGGERED_WAIT_SOF =>
+                gold_a_sync <= timing_period_strobe;
+                gold_b_sync <= '0';
+            when ACQUIRING=>
+                if(to_integer(unsigned(timing_frac_part)) = OVERSAMPLE_RATIO-1) then
+                    if(to_integer(unsigned(timing_int_part)) = time_search_step+1) then
+                        if(gold_sel = '0') then
+                            gold_a_sync <= '0';
+                            gold_b_sync <= '1';
+                        else
+                            gold_a_sync <= '1';
+                            gold_b_sync <= '0';
+                        end if;
+                        
+                    else
+                        gold_a_sync <= '0';
+                        gold_b_sync <= '0';
+                    end if;
+                else
+                    gold_a_sync <= '0';
+                    gold_b_sync <= '0';
+                end if;
+            when others=>
+                gold_a_sync <= '0';
+                gold_b_sync <= '0';
+        end case;
+    end process;
+
+    process(acq_state) is
+    begin
+        case acq_state is
+            when ACQUIRING=>
+                accu_ena <= '1';
+            when others=>
+                accu_ena <= '0';
+        end case;
+    end process;
+
+    process(acq_state) is
+    begin
+        case acq_state is
+            when ACQUIRING=>
+                nco_ena <= '1';
+            when others=>
+                nco_ena <= '0';
+        end case;
+    end process;
+
+    process(acq_state,timing_period_strobe) is
+    begin
+        case acq_state is
+            when ACQUIRING | TRIGGERED_WAIT_SOF=>
+                accu_sync <= timing_period_strobe;
+            when others=>
+                accu_sync <= '0';
+        end case;
+    end process;
+
     process(clk, reset) is
     begin
         if reset = '1' then
@@ -173,7 +251,9 @@ begin
             ph_inc_current <= (others => '0');
             ph_inc_reg <= (others => '0');
             gold_sel <= '0';
+            ph_inc_load <= '0';
         elsif(rising_edge(clk)) then
+            ph_inc_load <= '0';
             case acq_state is
                 when WAITING =>
                     if( acq_begin = '1') then
@@ -183,6 +263,7 @@ begin
                         freq_search_max <= to_integer(unsigned(phase_inc_count));
                         ph_inc_current <= phase_inc_start;
                         ph_inc_reg <= phase_inc_step;
+                        ph_inc_load <= '1';
                         gold_sel <= '0';
                     end if;
                 when PREPARING=>
@@ -196,18 +277,19 @@ begin
                         if(gold_sel = '0') then
                             gold_sel <= '1';
                         else
-                            gold_sel <= '1';
+                            gold_sel <= '0';
                         end if;
 
                         if(time_search_step = (2**GPS_GOLD_TAPS_WIDTH)-2) then
                             time_search_step <= 0;
-                            if(freq_search_step = freq_search_max-1) then
+                            if(freq_search_step = freq_search_max) then
                                 --end of freq_search
                                 freq_search_step <= 0;
                                 acq_state <= WAITING;
                             else
                                 freq_search_step <= freq_search_step + 1;
                                 ph_inc_current <= std_logic_vector(signed(ph_inc_current) + signed(ph_inc_reg));
+                                ph_inc_load <= '1';
                             end if;
                         else
                             time_search_step <= time_search_step + 1;

@@ -34,9 +34,9 @@ async def test_acq_and_track_subsystem(dut):
 
     dut.acq_begin.value = 0
 
-    dut.phase_inc_start.value = -2
-    dut.phase_inc_step.value = 1
-    dut.phase_inc_count.value = 5
+    dut.phase_inc_start.value = 0
+    dut.phase_inc_step.value = 0
+    dut.phase_inc_count.value = 0
     
     await reset(dut)
     await RisingEdge(dut.clk)
@@ -45,7 +45,7 @@ async def test_acq_and_track_subsystem(dut):
     dut.acq_begin.value = 0
 
 
-    for test_count in range(1023*4*1024):
+    for test_count in range(1023*4*1028):
         await RisingEdge(dut.clk)
         if(i_chan_quantised[test_count] == 1):
             dut.i_chan.value = 1

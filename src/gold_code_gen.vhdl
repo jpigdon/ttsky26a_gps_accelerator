@@ -13,6 +13,7 @@ entity gold_code_gen is
         gold_code_out  : out std_logic;
         ena     : in  std_logic;
         clk     : in  std_logic;
+        reset   : in  std_logic;
         sync   : in  std_logic
     );
 end gold_code_gen;
@@ -50,11 +51,13 @@ begin
         sv_tapped <= sv_tapped_int;
     end process;
 
-    process(clk) is
-        
+    process(clk, reset) is
     begin
-
-        if(rising_edge(clk)) then           
+        if(reset = '1') then
+            g1_sr <= (others => '1');
+            g2_sr <= (others => '1');
+            sv_taps_reg <= (others => '0');
+        elsif(rising_edge(clk)) then           
             if(sv_load = '1') then
                 sv_taps_reg <= sv_taps;
             end if;
