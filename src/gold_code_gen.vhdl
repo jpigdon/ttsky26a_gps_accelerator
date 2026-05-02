@@ -25,7 +25,7 @@ architecture Behavioral of gold_code_gen is
     signal g2_fb : std_logic;
     signal g1_tapped : std_logic;
     signal sv_tapped : std_logic;
-    signal sv_taps_reg : std_logic_vector(WIDTH-1 downto 0);
+    --signal sv_taps_reg : std_logic_vector(WIDTH-1 downto 0);
 begin
     gold_code_out <= g1_tapped xor sv_tapped;
     g1_tapped <= g1_sr(0);
@@ -46,7 +46,7 @@ begin
 
         sv_tapped_int := '0';
         for j in 0 to WIDTH-1 loop
-            sv_tapped_int := sv_tapped_int xor (g2_sr(WIDTH-1-j) and sv_taps_reg(j));
+            sv_tapped_int := sv_tapped_int xor (g2_sr(WIDTH-1-j) and sv_taps(j));
         end loop;
         sv_tapped <= sv_tapped_int;
     end process;
@@ -56,11 +56,11 @@ begin
         if(reset = '1') then
             g1_sr <= (others => '1');
             g2_sr <= (others => '1');
-            sv_taps_reg <= (others => '0');
+            --sv_taps_reg <= (others => '0');
         elsif(rising_edge(clk)) then           
-            if(sv_load = '1') then
-                sv_taps_reg <= sv_taps;
-            end if;
+            -- if(sv_load = '1') then
+            --     sv_taps_reg <= sv_taps;
+            -- end if;
 
             if(sync = '1') then
                 g1_sr <= (others => '1');

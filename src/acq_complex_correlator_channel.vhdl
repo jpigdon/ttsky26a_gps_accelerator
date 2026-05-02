@@ -163,7 +163,8 @@ begin
     
     accu_i_chan : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
         )
         port map (
             inc_input => i_corl_iphase,
@@ -177,7 +178,8 @@ begin
 
     accu_q_chan : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
         )
         port map (
             inc_input => q_corl_iphase,

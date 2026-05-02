@@ -5,8 +5,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity acq_and_track_subsystem is
     generic(
         OVERSAMPLE_RATIO : integer := 4;
-        ACCU_WIDTH : integer := 14;
-        ACCU_OUTPUT_WIDTH : integer := 8;
+        ACCU_WIDTH : integer := 16;
+        ACCU_OUTPUT_WIDTH : integer := 16;
         MASTER_COUNT_WIDTH_INT : integer := 10;
         MASTER_COUNT_WIDTH_FRAC : integer := 2;
         GPS_GOLD_TAPS_WIDTH : integer := 10;
@@ -29,6 +29,8 @@ entity acq_and_track_subsystem is
         curr_time_offset_test : out std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
         curr_ph_inc_test : out std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
 
+        master_time_pulse : out std_logic;
+
         i_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
         q_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
 
@@ -42,7 +44,7 @@ architecture Behavioral of acq_and_track_subsystem is
     generic(
         OVERSAMPLE_RATIO : integer := 4;
         ACCU_WIDTH : integer := 16;
-        ACCU_OUTPUT_WIDTH : integer := 8;
+        ACCU_OUTPUT_WIDTH : integer := 16;
         MASTER_COUNT_WIDTH_INT : integer := 10;
         MASTER_COUNT_WIDTH_FRAC : integer := 2;
         GPS_GOLD_TAPS_WIDTH : integer := 10;
@@ -97,6 +99,8 @@ architecture Behavioral of acq_and_track_subsystem is
     signal master_timing_slv : std_logic_vector(MASTER_COUNT_WIDTH_INT+MASTER_COUNT_WIDTH_FRAC-1 downto 0); --other 
 
 begin
+
+    master_time_pulse <= timing_period_strobe;
 
     master_clock : master_timing
         generic map (

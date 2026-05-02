@@ -101,7 +101,7 @@ architecture Behavioral of acquisition_mgmt_sm is
     signal gold_sel : std_logic;
 
     signal ph_inc_current :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
-    signal ph_inc_reg :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+    --signal ph_inc_reg :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
     signal ph_inc_load :  std_logic;
     signal nco_ena :  std_logic;
 
@@ -249,7 +249,7 @@ begin
             freq_search_step <= 0;
             freq_search_max <= 0;
             ph_inc_current <= (others => '0');
-            ph_inc_reg <= (others => '0');
+            --ph_inc_reg <= (others => '0');
             gold_sel <= '0';
             ph_inc_load <= '0';
         elsif(rising_edge(clk)) then
@@ -262,7 +262,7 @@ begin
                         freq_search_step <= 0;
                         freq_search_max <= to_integer(unsigned(phase_inc_count));
                         ph_inc_current <= phase_inc_start;
-                        ph_inc_reg <= phase_inc_step;
+                        --ph_inc_reg <= phase_inc_step;
                         ph_inc_load <= '1';
                         gold_sel <= '0';
                     end if;
@@ -288,7 +288,7 @@ begin
                                 acq_state <= WAITING;
                             else
                                 freq_search_step <= freq_search_step + 1;
-                                ph_inc_current <= std_logic_vector(signed(ph_inc_current) + signed(ph_inc_reg));
+                                ph_inc_current <= std_logic_vector(signed(ph_inc_current) + signed(phase_inc_step));
                                 ph_inc_load <= '1';
                             end if;
                         else

@@ -26,7 +26,7 @@ end bidir_complex_nco_1b;
 architecture Behavioral of bidir_complex_nco_1b is
     signal phase_accu : integer range ACCU_MIN_INT to ACCU_MAX_INT;
     signal ph_inc_int : integer range ACCU_MIN_INT to ACCU_MAX_INT;
-    signal phase_inc_reg : std_logic_vector(INC_WIDTH-1 downto 0);
+    --signal phase_inc_reg : std_logic_vector(INC_WIDTH-1 downto 0);
 begin
 
     process(phase_accu) is
@@ -44,17 +44,16 @@ begin
         end if;
     end process;
 
-    ph_inc_int <= to_integer(signed(phase_inc_reg));
+    ph_inc_int <= to_integer(signed(ph_inc_val));
 
-    process(clk) is
+    process(clk, reset) is
     begin
-        if(rising_edge(clk)) then
-            
-            if(reset = '1') then
-                phase_accu <= RESET_VAL;
-                phase_inc_reg <= (others => '0');
-            elsif(ph_load = '1') then
-                phase_inc_reg <= ph_inc_val;
+        if(reset = '1') then
+            phase_accu <= RESET_VAL;
+                --phase_inc_reg <= (others => '0');
+        elsif(rising_edge(clk)) then
+            if(ph_load = '1') then
+                --phase_inc_reg <= ph_inc_val;
                 phase_accu <= RESET_VAL;
             elsif(ena = '1') then
                 --increment the phase register and handle wrapping
