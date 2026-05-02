@@ -22,6 +22,8 @@ VHDL_SOURCES += $(SRC_DIR)/track_complex_correlator_channel.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acquisition_mgmt_sm.vhdl
 VHDL_SOURCES += $(SRC_DIR)/master_timing.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acq_and_track_subsystem.vhdl
+VHDL_SOURCES += $(SRC_DIR)/control_system.vhdl
+VHDL_SOURCES += $(SRC_DIR)/spi_control_if.vhdl
 TOPLEVEL = acq_and_track_subsystem
 MODULE = test_acq_and_track_subsystem
 

@@ -17,7 +17,7 @@ def generate_synthetic_data():
     #sv_search_range = [1, ca_code_gen.num_sv()]
 
     num_svs_range = [1, 1]
-    snr_range_db = [20, 20]
+    snr_range_db = [-10, -20]
     code_phase_error_range = [0, 1023];
     freq_error_range_hz = [0, 0];
     sv_search_range = [1, 1]
