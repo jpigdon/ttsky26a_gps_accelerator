@@ -16,149 +16,223 @@ entity tt_um_jpigdon_gps_accelerator_top is
 end tt_um_jpigdon_gps_accelerator_top;
 
 architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
-    component single_complex_correlator_channel is
+    constant OUTPUT_DATA_WIDTH : integer := 16;
+    constant INPUT_DATA_WIDTH : integer := 16;
+    constant ADDR_WIDTH : integer := 5;
+    constant OVERSAMPLE_RATIO : integer := 4;
+    constant ACCU_WIDTH : integer := 16;
+    constant ACCU_OUTPUT_WIDTH : integer := 16;
+    constant MASTER_COUNT_WIDTH_INT : integer := 10;
+    constant MASTER_COUNT_WIDTH_FRAC : integer := 2;
+    constant GPS_GOLD_TAPS_WIDTH : integer := 10;
+    constant PHASE_ACCU_WIDTH : integer := 12;
+    constant PHASE_COUNT_WIDTH : integer := 8;
+    constant PHASE_INC_WIDTH : integer := 8;
+
+    
+    component control_system is
     generic(
+        OUTPUT_DATA_WIDTH : integer := 16;
+        INPUT_DATA_WIDTH : integer := 16;
+        ADDR_WIDTH : integer := 5;
+
+        OVERSAMPLE_RATIO : integer := 4;
         ACCU_WIDTH : integer := 16;
-        ACCU_OUTPUT_WIDTH : integer := 8;
+        ACCU_OUTPUT_WIDTH : integer := 16;
+        MASTER_COUNT_WIDTH_INT : integer := 10;
+        MASTER_COUNT_WIDTH_FRAC : integer := 2;
         GPS_GOLD_TAPS_WIDTH : integer := 10;
         PHASE_ACCU_WIDTH : integer := 12;
+        PHASE_COUNT_WIDTH : integer := 8;
+        PHASE_INC_WIDTH : integer := 8
+    );
+    port (
+
+        spi_dom_csn : in std_logic;
+        spi_dom_miso : out std_logic;
+        spi_dom_mosi : in std_logic;
+        spi_dom_clk : in std_logic;
+
+        time_interrupt : out std_logic;
+        time_pulse : in std_logic;
+        
+        acq_begin : out std_logic;
+        acq_phase_inc_start : out std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+        acq_phase_inc_step : out std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+        acq_phase_inc_count : out std_logic_vector(PHASE_COUNT_WIDTH-1 downto 0);
+        acq_sv_test_taps: out std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
+
+        acq_busy : in std_logic;
+        acq_curr_time_offset_test : in std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
+        acq_curr_ph_inc_test : in std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+
+        acq_i_accu_val : in std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
+        acq_q_accu_val : in std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
+
+        reset   : in  std_logic;        
+        clk     : in  std_logic
+    );
+    end component;
+
+    component acq_and_track_subsystem is
+    generic(
+        OVERSAMPLE_RATIO : integer := 4;
+        ACCU_WIDTH : integer := 16;
+        ACCU_OUTPUT_WIDTH : integer := 16;
+        MASTER_COUNT_WIDTH_INT : integer := 10;
+        MASTER_COUNT_WIDTH_FRAC : integer := 2;
+        GPS_GOLD_TAPS_WIDTH : integer := 10;
+        PHASE_ACCU_WIDTH : integer := 12;
+        PHASE_COUNT_WIDTH : integer := 8;
         PHASE_INC_WIDTH : integer := 8
     );
     port (
         i_chan : in std_logic;
         q_chan : in std_logic;
 
-        gold_taps_slv : in std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
-        gold_load : in std_logic;
-        gold_sync : in std_logic;
-        gold_ena : in std_logic;
+        acq_begin : in std_logic;
 
-        ph_inc_slv : in  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
-        ph_inc_load : in std_logic;
-        nco_reset : in std_logic;
-        nco_ena : in std_logic;
+        phase_inc_start : in std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+        phase_inc_step : in std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+        phase_inc_count : in std_logic_vector(PHASE_COUNT_WIDTH-1 downto 0);
+        sv_test_taps: in std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
 
-        accu_sync : in std_logic;
-        accu_ena     : in  std_logic; --general channel enable
+        acq_busy : out std_logic;
+        curr_time_offset_test : out std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
+        curr_ph_inc_test : out std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+
+        master_time_pulse : out std_logic;
 
         i_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
         q_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
 
-
-        reset   : in  std_logic;
-        
+        reset   : in  std_logic;        
         clk     : in  std_logic
     );
     end component;
+
+    signal spi_dom_csn :  std_logic;
+    signal spi_dom_miso :  std_logic;
+    signal spi_dom_mosi :  std_logic;
+    signal spi_dom_clk :  std_logic;
+
+    signal time_interrupt :  std_logic;
+    signal time_pulse :  std_logic;
+        
+    signal acq_begin :  std_logic;
+    signal acq_phase_inc_start :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+    signal acq_phase_inc_step :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+    signal acq_phase_inc_count :  std_logic_vector(PHASE_COUNT_WIDTH-1 downto 0);
+    signal acq_sv_test_taps:  std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
+
+    signal acq_busy :  std_logic;
+    signal acq_curr_time_offset_test :  std_logic_vector(GPS_GOLD_TAPS_WIDTH-1 downto 0);
+    signal acq_curr_ph_inc_test :  std_logic_vector(PHASE_INC_WIDTH-1 downto 0);
+
+    signal acq_i_accu_val :  std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
+    signal acq_q_accu_val :  std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
+
+    signal i_chan : std_logic;
+    signal q_chan : std_logic;
+
     signal reset_pos_logic : std_logic;
-    signal accu_val_i_part : std_logic_vector(7 downto 0);
-    signal accu_val_q_part : std_logic_vector(7 downto 0);
-    signal output_reg : std_logic_vector(31 downto 0);
-    signal input_reg : std_logic_vector(31 downto 0);
 
-    signal input_i_chan : std_logic;
-    signal input_q_chan : std_logic;
-
-    signal input_gold_taps_slv : std_logic_vector(9 downto 0);
-    signal input_gold_load :  std_logic;
-    signal input_gold_sync :  std_logic;
-    signal input_gold_ena :  std_logic;
-
-    signal input_ph_inc_slv :  std_logic_vector(7 downto 0);
-    signal input_ph_inc_load :  std_logic;
-    signal input_nco_reset :  std_logic;
-    signal input_nco_enable :  std_logic;
-
-    signal input_accu_sync :  std_logic;
-    signal input_accu_ena     :   std_logic; --general channel enable
-
+    
 begin
     reset_pos_logic <= not rst_n;
 
-    input_i_chan <= ui_in(0); -- these are real pins, connect them here
-    input_q_chan <= ui_in(0);
-    uio_out(7 downto 1) <= (others=> '0');
-    uo_out <= (others => '0');
-    uio_oe <= (others => '0');
+    i_chan <= ui_in(0); -- these are real pins, connect them here
+    q_chan <= ui_in(2);
 
-    --shift register based configuration loading
-    --this is just fake to stop everything being synthesisted out
-    --pins as as follows, clk to shift everything
-    --uio_in(0) for sr data input
-    --uin_in(1) to latch output data
-    --uio_out(0) for outputdata
+    --from the webpage bit 0 is cs, 1 is MOSI (input), 2 MISO (output), 3 clk
+    uio_oe <= "0100" & "0100";
+    uio_out <= "0000" & '0' & spi_dom_miso & "00";
 
-    process(clk) is
-    begin
-        if(rising_edge(clk)) then
-            if(reset_pos_logic = '0') then
-                input_reg <= (others => '0');
-            else
-                input_reg <= input_reg(30 downto 0) & uio_in(0);
-            end if;
-        end if;
-    end process;
+    spi_dom_csn <= uio_in(0);
+    spi_dom_mosi <= uio_in(1);
+    spi_dom_clk <= uio_in(3);
 
-    process(clk) is
-    begin
-        if(rising_edge(clk)) then
-            if(reset_pos_logic = '0') then
-                output_reg <= (others => '0');
-            else
-                if(uio_in(1) = '1') then
-                    output_reg <= x"0000" & accu_val_i_part & accu_val_q_part;
-                else
-                    output_reg <= output_reg(30 downto 0) & '0';
-                end if;
-            end if;
-        end if;
-    end process;
+    --just the outputs
+    uo_out <= "000000" & time_pulse & time_interrupt;
 
-    uio_out(0) <= output_reg(0);
+    control : control_system
+    generic map(
+        OUTPUT_DATA_WIDTH => OUTPUT_DATA_WIDTH,
+        INPUT_DATA_WIDTH => INPUT_DATA_WIDTH,
+        ADDR_WIDTH => ADDR_WIDTH,
+        OVERSAMPLE_RATIO => ADDR_WIDTH,
+        ACCU_WIDTH => ACCU_WIDTH,
+        ACCU_OUTPUT_WIDTH =>ACCU_OUTPUT_WIDTH,
+        MASTER_COUNT_WIDTH_INT => MASTER_COUNT_WIDTH_INT,
+        MASTER_COUNT_WIDTH_FRAC => MASTER_COUNT_WIDTH_FRAC,
+        GPS_GOLD_TAPS_WIDTH => GPS_GOLD_TAPS_WIDTH,
+        PHASE_ACCU_WIDTH => PHASE_ACCU_WIDTH,
+        PHASE_COUNT_WIDTH => PHASE_COUNT_WIDTH,
+        PHASE_INC_WIDTH => PHASE_INC_WIDTH
+    )
+    port map(
 
-    input_gold_taps_slv <= input_reg(9 downto 0);
-    input_gold_load  <= input_reg(10);
-    input_gold_sync  <= input_reg(11);
-    input_gold_ena  <= input_reg(12);
-    input_ph_inc_slv <= input_reg(31 downto 24);
-    input_ph_inc_load  <= input_reg(12);
-    input_nco_reset  <= input_reg(13);
-    input_nco_enable  <= input_reg(14);
-    input_accu_sync <= input_reg(15);
-    input_accu_ena  <= input_reg(16);
+        spi_dom_csn => spi_dom_csn,
+        spi_dom_miso => spi_dom_miso,
+        spi_dom_mosi => spi_dom_mosi,
+        spi_dom_clk => spi_dom_clk,
 
+        time_interrupt => time_interrupt,
+        time_pulse => time_pulse,
+        
+        acq_begin => acq_begin,
+        acq_phase_inc_start => acq_phase_inc_start,
+        acq_phase_inc_step => acq_phase_inc_step,
+        acq_phase_inc_count => acq_phase_inc_count,
+        acq_sv_test_taps => acq_sv_test_taps,
 
-    
-    corl_inst : single_complex_correlator_channel
+        acq_busy => acq_busy,
+        acq_curr_time_offset_test => acq_curr_time_offset_test,
+        acq_curr_ph_inc_test => acq_curr_ph_inc_test,
+
+        acq_i_accu_val => acq_i_accu_val,
+        acq_q_accu_val => acq_q_accu_val,
+
+        reset => reset_pos_logic,
+        clk => clk
+    );
+
+    acq_trk : acq_and_track_subsystem
         generic map(
-            ACCU_WIDTH => 16,
-            GPS_GOLD_TAPS_WIDTH => 10,
-            PHASE_ACCU_WIDTH => 12,
-            PHASE_INC_WIDTH => 8
+            OVERSAMPLE_RATIO => OVERSAMPLE_RATIO,
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH,
+            MASTER_COUNT_WIDTH_INT =>  MASTER_COUNT_WIDTH_INT,
+            MASTER_COUNT_WIDTH_FRAC => MASTER_COUNT_WIDTH_FRAC,
+            GPS_GOLD_TAPS_WIDTH => GPS_GOLD_TAPS_WIDTH,
+            PHASE_ACCU_WIDTH => PHASE_ACCU_WIDTH,
+            PHASE_COUNT_WIDTH => PHASE_COUNT_WIDTH,
+            PHASE_INC_WIDTH => PHASE_INC_WIDTH
         )
         port map(
-            i_chan => input_i_chan,
-            q_chan => input_q_chan,
+            i_chan => i_chan,
+            q_chan => q_chan,
 
-            gold_taps_slv => input_gold_taps_slv,
-            gold_load => input_gold_load,
-            gold_sync => input_gold_sync,
-            gold_ena => input_gold_ena,
+            acq_begin => acq_begin,
 
-            ph_inc_slv => input_ph_inc_slv,
-            ph_inc_load => input_ph_inc_load,
-            nco_reset => input_nco_reset,
-            nco_ena => input_nco_enable,
+            phase_inc_start => acq_phase_inc_start,
+            phase_inc_step => acq_phase_inc_step,
+            phase_inc_count => acq_phase_inc_count,
+            sv_test_taps => acq_sv_test_taps,
 
-            accu_sync => input_accu_sync,
-            accu_ena  => input_accu_ena,
+            acq_busy => acq_busy,
+            curr_time_offset_test => acq_curr_time_offset_test,
+            curr_ph_inc_test => acq_curr_ph_inc_test,
 
-            i_accu_val => accu_val_i_part,
-            q_accu_val => accu_val_q_part,
+            master_time_pulse => time_pulse,
 
-            reset => reset_pos_logic,
-            clk => clk
+            i_accu_val => acq_i_accu_val,
+            q_accu_val => acq_q_accu_val,
+
+            reset   =>  reset_pos_logic,
+            clk     => clk
         );
+    
 
 
 end Behavioral;

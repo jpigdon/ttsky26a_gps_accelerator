@@ -136,7 +136,7 @@ begin
         );
 
     op_addr <= sample_dom_write_msg(OUTPUT_DATA_WIDTH+ADDR_WIDTH-1 downto OUTPUT_DATA_WIDTH);
-    write_op_data <= sample_dom_write_msg(OUTPUT_DATA_WIDTH downto 0);
+    write_op_data <= sample_dom_write_msg(OUTPUT_DATA_WIDTH-1 downto 0);
     write_op_strobe <= sample_dom_new_data and sample_dom_write_msg(OUTPUT_DATA_WIDTH+ADDR_WIDTH);
     read_op_req <= sample_dom_new_data and not sample_dom_write_msg(OUTPUT_DATA_WIDTH+ADDR_WIDTH);
 
@@ -150,6 +150,9 @@ begin
         if(spi_dom_csn = '1') then
             spi_dom_miso <= '0';
         elsif(falling_edge(spi_dom_clk)) then
+            --clock out the right bits
+            --this is not right, but try to stop synthsis
+            spi_dom_miso <= spi_dom_read_msg(0);
         end if;
     end process;
     --input clock process
@@ -159,6 +162,7 @@ begin
             spi_sr <= (others => '0');
             spi_bit_counter <= 0;
             spi_dom_send_strobe <= '0';
+            spi_write_op <= '0';
         elsif(rising_edge(spi_dom_clk)) then
             spi_dom_send_strobe <= '0';
             if(spi_bit_counter = 0) then
@@ -168,8 +172,10 @@ begin
                     spi_write_op <= '0';
                 end if;
             end if;
-
-            spi_sr <= spi_sr(SPI_SR_LENGTH-2 downto 0) & spi_dom_mosi;
+            
+            if(spi_bit_counter = 0 or (spi_write_op = '1' and spi_bit_counter <= WRITEDATA_POS-1) or (spi_write_op = '0' and spi_bit_counter <= READDATA_POS-1)) then
+                spi_sr <= spi_sr(SPI_SR_LENGTH-2 downto 0) & spi_dom_mosi;
+            end if;
 
             if(spi_bit_counter = READDATA_POS-1) then --we're at bit 8, start a read operation, so we have the data by bit 16 for clocking out
                 if(spi_write_op = '0') then
@@ -179,7 +185,9 @@ begin
                 if(spi_write_op = '1') then
                     spi_dom_send_strobe <= '1';
                 end if;
-            elsif(spi_bit_counter = SPI_SR_LENGTH-1) then --last bit
+            end if;
+
+            if(spi_bit_counter = SPI_SR_LENGTH-1) then --last bit
                 spi_bit_counter <= 0;
             else
                 spi_bit_counter <= spi_bit_counter + 1;

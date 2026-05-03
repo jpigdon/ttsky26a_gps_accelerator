@@ -26,8 +26,10 @@ VHDL_SOURCES += $(SRC_DIR)/bit_syncronizer.vhdl
 VHDL_SOURCES += $(SRC_DIR)/handshake_syncronizer.vhdl
 VHDL_SOURCES += $(SRC_DIR)/control_system.vhdl
 VHDL_SOURCES += $(SRC_DIR)/spi_control_if.vhdl
-TOPLEVEL = acq_and_track_subsystem
-MODULE = test_acq_and_track_subsystem
+#TOPLEVEL = acq_and_track_subsystem
+#MODULE = test_acq_and_track_subsystem
+TOPLEVEL = control_system
+MODULE = test_control_system
 
 else
 

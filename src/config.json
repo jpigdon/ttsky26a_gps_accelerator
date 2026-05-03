@@ -44,15 +44,18 @@
     "dir::acquisition_mgmt_sm.vhdl",
     "dir::master_timing.vhdl",
     "dir::acq_and_track_subsystem.vhdl",
-    "dir::bit_synchronizer.vhdl",
-    "dir::handshake_synchronizer.vhdl",
+    "dir::bit_syncronizer.vhdl",
+    "dir::handshake_syncronizer.vhdl",
     "dir::control_system.vhdl",
     "dir::spi_control_if.vhdl"
   ],
 
+  "//": "PNR_SDC_FILE dir::clocks.sdc",
+
   "//": "If you need a custom clock configuration, read the following documentation first:",
   "//": "https://tinytapeout.com/faq/#how-can-i-map-an-additional-external-clock-to-one-of-the-gpios",
   "CLOCK_PORT": "clk",
+
 
   "//": "Configuration docs: https://librelane.readthedocs.io/en/latest/reference/configuration.html",
 

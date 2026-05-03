@@ -139,6 +139,8 @@ begin
     end if;
   end process;
 
+
+  tx_reg_en <= Send_data;
   Data_sent <= '1' when ack_tx = '0' and prev_ack = '1' else '0';
 
   fsm: block
@@ -152,18 +154,18 @@ begin
     begin
       if Reset_tx = RESET_ACTIVE_LEVEL then
         cur_state <= IDLE;
-        tx_reg_en <= '0';
+        --tx_reg_en <= '0';
         req_tx <= '0';
         Sending <= '0';
       elsif rising_edge(Clock_tx) then
 
         next_state := cur_state;
-        tx_reg_en <= '0';
+        --tx_reg_en <= '0';
         case cur_state is
           when IDLE =>
             if Send_data = '1' then
               next_state := SEND;
-              tx_reg_en <= '1';
+              --tx_reg_en <= '1';
             end if;
 
           when SEND => -- Wait for Rx side to assert ack
