@@ -28,8 +28,10 @@ VHDL_SOURCES += $(SRC_DIR)/control_system.vhdl
 VHDL_SOURCES += $(SRC_DIR)/spi_control_if.vhdl
 #TOPLEVEL = acq_and_track_subsystem
 #MODULE = test_acq_and_track_subsystem
-TOPLEVEL = control_system
-MODULE = test_control_system
+#TOPLEVEL = control_system
+#MODULE = test_control_system
+TOPLEVEL = tt_um_jpigdon_gps_accelerator_top
+MODULE = test_um_system
 
 else
 
