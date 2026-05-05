@@ -17,6 +17,26 @@ async def reset(dut):
     await ClockCycles(dut.clk, 5)
     dut.reset.value = 0;
 
+async def spi_operation(dut, delay_ns=2000, word_to_send=0x81A50F00):
+    dut.spi_dom_csn.value = 1;
+    dut.spi_dom_mosi.value = 1;
+    dut.spi_dom_clk.value = 0;
+
+    await Timer(delay_ns, units='ns')
+    dut.spi_dom_csn.value = 0;
+    dut.spi_dom_mosi.value = (word_to_send >> 31) & 1
+    await Timer(1.5*SPI_PERIOD_NS, units='ns')
+    for i in range(31):
+        #set the bit
+        await Timer(SPI_PERIOD_NS/2, units='ns')
+        dut.spi_dom_clk.value = 1
+        await Timer(SPI_PERIOD_NS/2, units='ns')
+        dut.spi_dom_clk.value = 0
+        dut.spi_dom_mosi.value = (word_to_send >> 31-i-1) & 1;
+    await Timer(1.5*SPI_PERIOD_NS, units='ns')
+    dut.spi_dom_csn.value = 1;
+
+
 @cocotb.test()
 async def test_acq_and_track_subsystem(dut):
     clock = Clock(dut.clk, int((1/4.092)*1000000), units="ps")

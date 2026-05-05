@@ -30,6 +30,8 @@ async def spi_operation(dut, num_transactions=1,delay_ns=2000, word_to_send=0x81
         await Timer(delay_ns[j], units='ns')
         uin_val = 0x02
 
+        #print("Sending: "+ str(hex(word_to_send[j])))
+
         if(((word_to_send[j] >> 31) & 1) == 1):
             uin_val = uin_val | (1 << 1)
         else:
@@ -137,10 +139,10 @@ async def test_um_system(dut):
     q_chan_quantised = np.array(np.where(np.imag(test_data_unquantised) >= 0.0, 1,-1),dtype="int8")
 
     taps = ca_code_gen.taps_from_sv(1)
-    print(hex(taps))
+    #print(hex(taps))
 
     delays = [5000, 5000, 5000, 5000, 5000]
-    transactions = [ 0x81000000 & (taps << 8), 0x82FFFE00, 0x83000100, 0x84000300, 0x80000200]
+    transactions = [ 0x81000000 | (taps << 8), 0x82FFFE00, 0x83000100, 0x84000300, 0x80000200]
 
     clock = Clock(dut.clk, int((1/4.092)*1000000), units="ps")
     cocotb.start_soon(clock.start())

@@ -63,28 +63,19 @@ use ieee.std_logic_1164.all;
 entity bit_synchronizer is
   generic (
     STAGES : natural := 2; --# Number of flip-flops in the synchronizer
-    RESET_ACTIVE_LEVEL : std_ulogic := '1' --# Asynch. reset control level
+    RESET_ACTIVE_LEVEL : std_logic := '1' --# Asynch. reset control level
   );
   port (
-    Clock  : in std_ulogic; --# System clock
-    Reset  : in std_ulogic; --# Asynchronous reset
+    Clock  : in std_logic; --# System clock
+    Reset  : in std_logic; --# Asynchronous reset
 
-    Bit_in : in std_ulogic; --# Unsynchronized signal
-    Sync   : out std_ulogic --# Synchronized to Clock's domain
+    Bit_in : in std_logic; --# Unsynchronized signal
+    Sync   : out std_logic --# Synchronized to Clock's domain
   );
 end entity;
 
 architecture rtl of bit_synchronizer is
-  signal sr : std_ulogic_vector(1 to STAGES);
-  
-  -- Xilinx synth attributes:
-  attribute SHREG_EXTRACT : string;
-  attribute ASYNC_REG     : string;
-  attribute RLOC          : string;
-  
-  -- Guard against SRL16 inference in case Reset is not being used
-  attribute SHREG_EXTRACT of sr : signal is "no";
-  attribute ASYNC_REG of sr     : signal is "TRUE";
+  signal sr : std_logic_vector(1 to STAGES);
   
 begin
   reg: process(Clock, Reset) is
@@ -92,7 +83,7 @@ begin
     if Reset = RESET_ACTIVE_LEVEL then
       sr <= (others => '0');
     elsif rising_edge(Clock) then
-      sr <= to_X01(Bit_in) & sr(1 to sr'right-1);
+      sr <= Bit_in & sr(1 to sr'right-1);
     end if;
   end process;
 
