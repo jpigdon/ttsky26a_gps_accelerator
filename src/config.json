@@ -17,11 +17,11 @@
     "flow": "VHDLClassic"
   },
   
-  "PL_TARGET_DENSITY_PCT": 70,
+  "PL_TARGET_DENSITY_PCT": 85,
 
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",
-  "CLOCK_PERIOD": 20,
+  "CLOCK_PERIOD": 100,
 
   "//": "Hold slack margin - Increase them in case you are getting hold violations.",
   "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
@@ -42,6 +42,7 @@
     "dir::track_complex_correlator_channel.vhdl",
     "dir::acq_complex_correlator_channel.vhdl",
     "dir::acquisition_mgmt_sm.vhdl",
+    "dir::track_mgmt_sm.vhdl",
     "dir::master_timing.vhdl",
     "dir::acq_and_track_subsystem.vhdl",
     "dir::bit_syncronizer.vhdl",

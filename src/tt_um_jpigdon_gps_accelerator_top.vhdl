@@ -20,21 +20,21 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
     constant INPUT_DATA_WIDTH : integer := 16;
     constant ADDR_WIDTH : integer := 5;
     constant OVERSAMPLE_RATIO : integer := 4;
-    constant ACCU_WIDTH : integer := 16;
-    constant ACCU_OUTPUT_WIDTH : integer := 16;
+    constant ACCU_WIDTH : integer := 12;
+    constant ACCU_OUTPUT_WIDTH : integer := 12;
     constant MASTER_COUNT_WIDTH_INT : integer := 10;
     constant MASTER_COUNT_WIDTH_FRAC : integer := 2;
     constant GPS_GOLD_TAPS_WIDTH : integer := 10;
     constant PHASE_ACCU_WIDTH : integer := 12;
     constant PHASE_COUNT_WIDTH : integer := 8;
     constant PHASE_INC_WIDTH : integer := 8;
+    constant NUM_TRACK_CHANNELS : integer := 2;
 
-    
     component control_system is
     generic(
         OUTPUT_DATA_WIDTH : integer := 16;
         INPUT_DATA_WIDTH : integer := 16;
-        ADDR_WIDTH : integer := 5;
+        ADDR_WIDTH : integer := 6;
 
         OVERSAMPLE_RATIO : integer := 4;
         ACCU_WIDTH : integer := 16;
@@ -44,7 +44,8 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
         GPS_GOLD_TAPS_WIDTH : integer := 10;
         PHASE_ACCU_WIDTH : integer := 12;
         PHASE_COUNT_WIDTH : integer := 8;
-        PHASE_INC_WIDTH : integer := 8
+        PHASE_INC_WIDTH : integer := 8;
+        NUM_TRACK_CHANNELS : integer := 3
     );
     port (
 
@@ -69,6 +70,16 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
         acq_i_accu_val : in std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
         acq_q_accu_val : in std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
 
+        track_channel_en : out std_logic_vector(NUM_TRACK_CHANNELS-1 downto 0);
+        track_channel_update : out std_logic_vector(NUM_TRACK_CHANNELS-1 downto 0);
+
+        track_i_accu_val : in std_logic_vector((NUM_TRACK_CHANNELS *3* ACCU_OUTPUT_WIDTH)-1 downto 0);
+        track_q_accu_val : in std_logic_vector((NUM_TRACK_CHANNELS *3* ACCU_OUTPUT_WIDTH)-1 downto 0);
+        track_phase_inc: out std_logic_vector((NUM_TRACK_CHANNELS * PHASE_INC_WIDTH)-1 downto 0);
+        track_time : out std_logic_vector(NUM_TRACK_CHANNELS*(MASTER_COUNT_WIDTH_INT+MASTER_COUNT_WIDTH_FRAC)-1 downto 0);
+        track_sv: out std_logic_vector((NUM_TRACK_CHANNELS*GPS_GOLD_TAPS_WIDTH)-1 downto 0);
+
+
         reset   : in  std_logic;        
         clk     : in  std_logic
     );
@@ -84,7 +95,8 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
         GPS_GOLD_TAPS_WIDTH : integer := 10;
         PHASE_ACCU_WIDTH : integer := 12;
         PHASE_COUNT_WIDTH : integer := 8;
-        PHASE_INC_WIDTH : integer := 8
+        PHASE_INC_WIDTH : integer := 8;
+        NUM_TRACK_CHANNELS : integer := 3
     );
     port (
         i_chan : in std_logic;
@@ -105,6 +117,15 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
 
         i_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
         q_accu_val : out std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
+
+        track_channel_en : in std_logic_vector(NUM_TRACK_CHANNELS-1 downto 0);
+        track_channel_update : in std_logic_vector(NUM_TRACK_CHANNELS-1 downto 0);
+
+        track_i_accu_val : out std_logic_vector((NUM_TRACK_CHANNELS *3* ACCU_OUTPUT_WIDTH)-1 downto 0);
+        track_q_accu_val : out std_logic_vector((NUM_TRACK_CHANNELS *3* ACCU_OUTPUT_WIDTH)-1 downto 0);
+        track_phase_inc: in std_logic_vector((NUM_TRACK_CHANNELS * PHASE_INC_WIDTH)-1 downto 0);
+        track_time : in std_logic_vector(NUM_TRACK_CHANNELS*(MASTER_COUNT_WIDTH_INT+MASTER_COUNT_WIDTH_FRAC)-1 downto 0);
+        track_sv: in std_logic_vector((NUM_TRACK_CHANNELS*GPS_GOLD_TAPS_WIDTH)-1 downto 0);
 
         reset   : in  std_logic;        
         clk     : in  std_logic
@@ -131,6 +152,16 @@ architecture Behavioral of tt_um_jpigdon_gps_accelerator_top is
 
     signal acq_i_accu_val :  std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
     signal acq_q_accu_val :  std_logic_vector(ACCU_OUTPUT_WIDTH-1 downto 0);
+
+    signal track_channel_en : std_logic_vector(NUM_TRACK_CHANNELS-1 downto 0);
+    signal track_channel_update : std_logic_vector(NUM_TRACK_CHANNELS-1 downto 0);
+
+    signal track_i_accu_val : std_logic_vector((NUM_TRACK_CHANNELS *3* ACCU_OUTPUT_WIDTH)-1 downto 0);
+    signal track_q_accu_val : std_logic_vector((NUM_TRACK_CHANNELS *3* ACCU_OUTPUT_WIDTH)-1 downto 0);
+    signal track_phase_inc: std_logic_vector((NUM_TRACK_CHANNELS * PHASE_INC_WIDTH)-1 downto 0);
+    signal track_time : std_logic_vector(NUM_TRACK_CHANNELS*(MASTER_COUNT_WIDTH_INT+MASTER_COUNT_WIDTH_FRAC)-1 downto 0);
+    signal track_sv: std_logic_vector((NUM_TRACK_CHANNELS*GPS_GOLD_TAPS_WIDTH)-1 downto 0);
+
 
     signal i_chan : std_logic;
     signal q_chan : std_logic;
@@ -168,7 +199,8 @@ begin
         GPS_GOLD_TAPS_WIDTH => GPS_GOLD_TAPS_WIDTH,
         PHASE_ACCU_WIDTH => PHASE_ACCU_WIDTH,
         PHASE_COUNT_WIDTH => PHASE_COUNT_WIDTH,
-        PHASE_INC_WIDTH => PHASE_INC_WIDTH
+        PHASE_INC_WIDTH => PHASE_INC_WIDTH,
+        NUM_TRACK_CHANNELS => NUM_TRACK_CHANNELS
     )
     port map(
 
@@ -193,6 +225,14 @@ begin
         acq_i_accu_val => acq_i_accu_val,
         acq_q_accu_val => acq_q_accu_val,
 
+        track_channel_en => track_channel_en,
+        track_channel_update => track_channel_update,
+        track_i_accu_val => track_i_accu_val,
+        track_q_accu_val => track_q_accu_val,
+        track_phase_inc => track_phase_inc,
+        track_time => track_time,
+        track_sv => track_sv,
+
         reset => reset_pos_logic,
         clk => clk
     );
@@ -207,7 +247,8 @@ begin
             GPS_GOLD_TAPS_WIDTH => GPS_GOLD_TAPS_WIDTH,
             PHASE_ACCU_WIDTH => PHASE_ACCU_WIDTH,
             PHASE_COUNT_WIDTH => PHASE_COUNT_WIDTH,
-            PHASE_INC_WIDTH => PHASE_INC_WIDTH
+            PHASE_INC_WIDTH => PHASE_INC_WIDTH,
+            NUM_TRACK_CHANNELS => NUM_TRACK_CHANNELS
         )
         port map(
             i_chan => i_chan,
@@ -228,6 +269,14 @@ begin
 
             i_accu_val => acq_i_accu_val,
             q_accu_val => acq_q_accu_val,
+
+            track_channel_en => track_channel_en,
+            track_channel_update => track_channel_update,
+            track_i_accu_val => track_i_accu_val,
+            track_q_accu_val => track_q_accu_val,
+            track_phase_inc => track_phase_inc,
+            track_time => track_time,
+            track_sv => track_sv,
 
             reset   =>  reset_pos_logic,
             clk     => clk

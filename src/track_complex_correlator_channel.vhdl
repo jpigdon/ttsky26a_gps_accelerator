@@ -4,17 +4,12 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity track_complex_correlator_channel is
     generic(
         ACCU_WIDTH : integer := 16;
-        ACCU_OUTPUT_WIDTH : integer := 8;
+        ACCU_OUTPUT_WIDTH : integer := 16;
         GPS_GOLD_TAPS_WIDTH : integer := 10;
         PHASE_ACCU_WIDTH : integer := 12;
         PHASE_INC_WIDTH : integer := 8;
         SR_INPUT_SEL_WIDTH : integer := 2;
-        SR_DELAY_MAX : integer := 4; --delay for shift register generation, actual length is twice this  for early/late
-        SR_INPUT_MAP_0 : integer := 1;
-        SR_INPUT_MAP_1 : integer := 2;
-        SR_INPUT_MAP_2 : integer := 3;
-        SR_INPUT_MAP_3 : integer := 4
-         
+        SR_DELAY_MAX : integer := 4 --delay for shift register generation, actual length is twice this  for early/late 
     );
     port (
         i_chan : in std_logic;
@@ -52,6 +47,10 @@ entity track_complex_correlator_channel is
 end track_complex_correlator_channel;
 
 architecture Behavioral of track_complex_correlator_channel is
+    constant SR_INPUT_MAP_0 : integer := 1;
+    constant SR_INPUT_MAP_1 : integer := 2;
+    constant SR_INPUT_MAP_2 : integer := 3;
+    constant SR_INPUT_MAP_3 : integer := 4;
     component gold_code_gen is
     generic(
         WIDTH : integer := 10
@@ -62,6 +61,7 @@ architecture Behavioral of track_complex_correlator_channel is
         gold_code_out  : out std_logic;
         ena     : in  std_logic;
         clk     : in  std_logic;
+        reset   : in  std_logic;
         sync   : in  std_logic
     );
     end component;
@@ -69,7 +69,7 @@ architecture Behavioral of track_complex_correlator_channel is
     component biphase_accu_and_dump is
     generic(
         ACCU_WIDTH : integer := 16;
-        ACCU_OUTPUT_WIDTH : integer := 8
+        ACCU_OUTPUT_WIDTH : integer := 16
     );
     port (
         inc_input : in std_logic; --high indicates increment request
@@ -166,6 +166,7 @@ begin
             gold_code_out  => reference_gold_code,
             ena    => gold_ena,
             clk    => clk,
+            reset  => reset,
             sync   => gold_sync
         );
 
@@ -186,7 +187,9 @@ begin
     
     accu_i_chan_early : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
+
         )
         port map (
             inc_input => i_corl_iphase_e,
@@ -200,7 +203,8 @@ begin
 
     accu_q_chan_early : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
         )
         port map (
             inc_input => q_corl_iphase_e,
@@ -214,7 +218,8 @@ begin
 
     accu_i_chan_mid : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
         )
         port map (
             inc_input => i_corl_iphase_m,
@@ -228,7 +233,8 @@ begin
 
     accu_q_chan_mid : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
         )
         port map (
             inc_input => q_corl_iphase_m,
@@ -242,7 +248,8 @@ begin
     
     accu_i_chan_late : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
         )
         port map (
             inc_input => i_corl_iphase_l,
@@ -256,7 +263,8 @@ begin
 
     accu_q_chan_late : biphase_accu_and_dump
         generic map(
-            ACCU_WIDTH => ACCU_WIDTH
+            ACCU_WIDTH => ACCU_WIDTH,
+            ACCU_OUTPUT_WIDTH => ACCU_OUTPUT_WIDTH
         )
         port map (
             inc_input => q_corl_iphase_l,

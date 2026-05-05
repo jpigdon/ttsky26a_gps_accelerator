@@ -9,8 +9,11 @@ SRC_DIR = $(PWD)/../src
 ifneq ($(GATES),yes)
 
 # RTL simulation:
+SIM=ghdl
 SIM_BUILD				= sim_build/rtl
-SIM_ARGS += --wave=nvcsim.fst
+COMPILE_ARGS := --std=08
+#SIM_ARGS +=--std=08
+#SIM_ARGS += --wave=nvcsim.fst
 TOPLEVEL_LANG ?= vhdl
 VHDL_SOURCES = $(SRC_DIR)/tt_um_jpigdon_gps_accelerator_top.vhdl
 VHDL_SOURCES += $(SRC_DIR)/gold_code_gen.vhdl
@@ -20,6 +23,7 @@ VHDL_SOURCES += $(SRC_DIR)/single_complex_correlator_channel.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acq_complex_correlator_channel.vhdl
 VHDL_SOURCES += $(SRC_DIR)/track_complex_correlator_channel.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acquisition_mgmt_sm.vhdl
+VHDL_SOURCES += $(SRC_DIR)/track_mgmt_sm.vhdl
 VHDL_SOURCES += $(SRC_DIR)/master_timing.vhdl
 VHDL_SOURCES += $(SRC_DIR)/acq_and_track_subsystem.vhdl
 VHDL_SOURCES += $(SRC_DIR)/bit_syncronizer.vhdl
